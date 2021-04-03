@@ -57,7 +57,7 @@ public class ClientesResource {
 	}
 
 	@GetMapping("/pesquisar/{id}")
-	public ResponseEntity<?> obterLancamento(@PathVariable("id") final Long id) {
+	public ResponseEntity<?> obterCliente(@PathVariable("id") final Long id) {
 		final Optional<Cliente> cliente = this.clientesService.obterPorId(id);
 		if (!cliente.isPresent()) {
 			return ResponseEntity.notFound().build();

@@ -15,4 +15,14 @@ public class WebConfiguration implements WebMvcConfigurer {
 		registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
 	}
 
+	/**
+	 * Configuração para o swagger - registrar os recursos do swagger no classpath
+	 * da API
+	 */
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+//		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+//	}
+
 }

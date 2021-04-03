@@ -2,7 +2,9 @@ package com.ms.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,6 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JwtServiceImpl jwtService;
 
+	private static final String[] LISTA_BRANCA_DE_AUTORIZACOES = { //
+			"/usuarios/autenticar" };
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -36,7 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	/**
 	 * Configurações de autenticação dos usuários para adicioná-los dentro do
-	 * contexto do security Com JWT deixa de ser utilizado
+	 * contexto do security, com o JWT, deixa de ser utilizado, pois o JwtAuthFilter
+	 * irá interceptar a requisição, ler as informações de usuário no token e
+	 * repassá-las ao contexto do spring security ao final.
 	 */
 //	@Override
 //	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -51,23 +58,39 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// super.configure(http);
-		http.authorizeRequests().antMatchers("**/clientes/*").hasAnyRole("ADMIN") //
-				.antMatchers("**/usuarios/**").hasAnyRole("ADMIN", "USER"); //
+		http.authorizeRequests().antMatchers("**/clientes/*").hasAnyRole("ADMIN", "USER") //
+				.antMatchers("**/usuarios/**").hasAnyRole("ADMIN") //
+				// http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll(); //
+				.and().csrf().disable() // testar com postman
+				/**
+				 * Não há mais sessão de usuário, passa a ser stateless
+				 */
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //
+				/**
+				 * Executa o filtro que coloca o usuário no contexto do spring security, só
+				 * então executa o filtro padrão do spring security
+				 */
+				.and() //
+				.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+		/**
+		 * Validar o token para cada requisição realizada
+		 */
+		http.authorizeRequests().anyRequest().authenticated();
 
-		http.csrf().disable();
-		/**
-		 * Não há mais sessão de usuário, passa a ser stateless
-		 */
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		/**
-		 * Executa o filtro que coloca o usuário no contexto do spring security, só
-		 * então executa o filtro padrão do spring security
-		 */
-		http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.headers().frameOptions().sameOrigin() // para o H2 Console
+				.cacheControl(); // desabilita o cache
 
 		// .and()
 		// .formLogin() // Formulário default do springsecurity
 		// .httpBasic(); // Credenciais no header Authorization
+	}
+
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		/**
+		 * Ignorar rota de validação
+		 */
+		web.ignoring().antMatchers(HttpMethod.POST, LISTA_BRANCA_DE_AUTORIZACOES);
 	}
 
 }

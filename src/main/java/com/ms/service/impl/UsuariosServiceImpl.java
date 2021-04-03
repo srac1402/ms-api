@@ -42,6 +42,11 @@ public class UsuariosServiceImpl implements UsuariosService, UserDetailsService 
 
 	@Override
 	public Usuario salvar(final Usuario usuario) {
+		final Login login = usuario.getLogin();
+		final String senha = login.getStrSenha();
+		final String senhaCriptografada = passwordEncoder.encode(senha);
+		login.setStrSenha(senhaCriptografada);
+		usuario.setLogin(login);
 		return usuarioRepository.save(usuario);
 	}
 
