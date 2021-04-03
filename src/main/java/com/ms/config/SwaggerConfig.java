@@ -1,5 +1,6 @@
 package com.ms.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,27 +24,41 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {
 
+	/**
+	 * Implementação de segurança no Swagger para testar os endpoints que dependem
+	 * de autorização via token, se as configurações estiverem ok, o botão Authorize
+	 * estará disponível. Ao acessar o swagger, basta gerar o token no endpoint de
+	 * autenticação, digitar "Bearer + token gerado" na caixa de texto e clicar no
+	 * botão Authorize.
+	 *
+	 * @return
+	 */
 	private ApiKey apiKey() {
 		return new ApiKey("JWT", "Authorization", "header");
-	}
-
-	private SecurityContext securityContext() {
-		return SecurityContext.builder().securityReferences(defaultAuth()).build();
 	}
 
 	private List<SecurityReference> defaultAuth() {
 		final AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
 		final AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
 		authorizationScopes[0] = authorizationScope;
-		return Arrays.asList(new SecurityReference("JWT", authorizationScopes));
+		final List<SecurityReference> auths = new ArrayList<>();
+		// JWT - mesmo nome que foi definido em apiKey()
+		auths.add(new SecurityReference("JWT", authorizationScopes));
+		return auths;
+	}
+
+	private SecurityContext securityContext() {
+		return SecurityContext.builder() //
+				.securityReferences(defaultAuth()) //
+				// mesmos caminhos definidos em docket paths, no caso, qualquer caminho
+				.forPaths(PathSelectors.any()) //
+				.build();
 	}
 
 	// http://localhost:8080/swagger-ui.html
 	@Bean
 	public Docket docket() {
 		return new Docket(DocumentationType.SWAGGER_2) //
-				.securityContexts(Arrays.asList(securityContext())) //
-				.securitySchemes(Arrays.asList(apiKey())) //
 				.enable(true) //
 				.useDefaultResponseMessages(false) //
 				.select() //
@@ -51,6 +66,9 @@ public class SwaggerConfig {
 				// .paths(regex("/rest.*")) //
 				.paths(PathSelectors.any()) //
 				.build() //
+				// Adicionando a segurança, para utilizar token, ao swagger
+				.securityContexts(Arrays.asList(securityContext())) //
+				.securitySchemes(Arrays.asList(apiKey())) //
 				.apiInfo(apiInfo());
 	}
 

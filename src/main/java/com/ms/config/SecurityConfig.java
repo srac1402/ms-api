@@ -2,7 +2,6 @@ package com.ms.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +26,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private JwtServiceImpl jwtService;
 
 	private static final String[] LISTA_BRANCA_DE_AUTORIZACOES = { //
-			"/usuarios/autenticar" };
+			"/usuarios/autenticar", // Autenticação
+			"/v2/api-docs", "/configuration/ui", // Swagger
+			"/swagger-resources/**", "/configuration/security", //
+			"/swagger-ui.html", "/webjars/**" };
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -90,7 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		/**
 		 * Ignorar rota de validação
 		 */
-		web.ignoring().antMatchers(HttpMethod.POST, LISTA_BRANCA_DE_AUTORIZACOES);
+		web.ignoring().antMatchers(LISTA_BRANCA_DE_AUTORIZACOES);
 	}
 
 }

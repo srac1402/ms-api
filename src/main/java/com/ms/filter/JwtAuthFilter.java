@@ -16,11 +16,26 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.ms.service.impl.JwtServiceImpl;
 import com.ms.service.impl.UsuariosServiceImpl;
 
+/**
+ * Este filtro deverá realizar o papel que seria de
+ * AuthenticationManagerBuilder, capturar o token da requisição, extrair as
+ * informações e repassar para o contexto do spring security, e deverá ser
+ * executado antes (before) do filtro padrão.
+ *
+ * @author sergio
+ *
+ */
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private JwtServiceImpl jwtServiceImpl;
 	private UsuariosServiceImpl usuariosServiceImpl;
 
+	/**
+	 * Os services serão repassados na configuração SecurityConfig
+	 *
+	 * @param jwtServiceImpl
+	 * @param usuariosServiceImpl
+	 */
 	public JwtAuthFilter(JwtServiceImpl jwtServiceImpl, UsuariosServiceImpl usuariosServiceImpl) {
 		super();
 		this.jwtServiceImpl = jwtServiceImpl;
@@ -42,11 +57,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			if (tokenValido) {
 				final String loginUsuario = jwtServiceImpl.obterLoginUsuario(token);
 				final UserDetails userDetails = usuariosServiceImpl.loadUserByUsername(loginUsuario);
+				/**
+				 * Preparando os dados de usuário para inserir no contexto do spring securiry,
+				 * encapsulando-o no objeto abaixo
+				 */
 				final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userDetails,
 						null, userDetails.getAuthorities());
+				/**
+				 * Passa para o spring security o contexto da requisição web
+				 */
 				user.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				/**
-				 * Joga o usuário no contexto do spring security
+				 * Insere o usuário no contexto do spring security
 				 */
 				SecurityContextHolder.getContext().setAuthentication(user);
 			}
