@@ -16,7 +16,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -28,7 +28,7 @@ import com.ms.util.EmailUtil;
 public class EmailsServiceImpl implements EmailsService {
 
 	@Autowired
-	private JavaMailSender mailSender;
+	private JavaMailSenderImpl mailSender;
 
 	@Override
 	public void enviarEmails(final List<Cliente> clientes, final String caminhoAnexo, final String nomeAnexo)
@@ -42,15 +42,6 @@ public class EmailsServiceImpl implements EmailsService {
 			corpoMensagemAnexos.setFileName(nomeAnexo);
 			multipart.addBodyPart(corpoMensagemAnexos);
 		}
-
-//		final Properties properties = System.getProperties();
-//		properties.put("mail.smtp.auth", "true");
-//		properties.put("mail.smtp.host", EmailUtil.HOST);
-//		properties.put("mail.smtp.port", EmailUtil.PORTA);
-//		properties.put("mail.smtp.starttls.enable", "true");
-//		mailSender.setPassword(EmailUtil.SENHA);
-//		mailSender.setUsername(EmailUtil.USUARIO);
-//		mailSender.setJavaMailProperties(properties);
 
 		final MimeMessage message = this.mailSender.createMimeMessage();
 		int i = 0;

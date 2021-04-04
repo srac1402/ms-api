@@ -55,7 +55,7 @@ public class SwaggerConfig {
 				.build();
 	}
 
-	// http://localhost:8080/swagger-ui.html
+	// http://localhost:8080/ms-api/swagger-ui.html
 	@Bean
 	public Docket docket() {
 		return new Docket(DocumentationType.SWAGGER_2) //
@@ -85,5 +85,20 @@ public class SwaggerConfig {
 				.version("0.0.1").contact(contact()) //
 				.build();
 	}
+
+	/**
+	 * Configuração para o swagger - registrar os recursos do swagger no classpath
+	 * da API
+	 */
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+//		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+//	}
+//
+//	@Override
+//	public void addCorsMappings(CorsRegistry registry) {
+//		registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+//	}
 
 }

@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "usuario")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "strLogin")
 @Entity
 @Table(name = "TB_LOGIN", schema = "SC_MS")
 @AllArgsConstructor

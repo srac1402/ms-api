@@ -62,8 +62,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// super.configure(http);
 		http.authorizeRequests().antMatchers("**/clientes/*").hasAnyRole("ADMIN", "USER") //
 				.antMatchers("**/usuarios/**").hasAnyRole("ADMIN") //
+				.anyRequest().authenticated()
 				// http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll(); //
 				.and().csrf().disable() // testar com postman
+
 				/**
 				 * Não há mais sessão de usuário, passa a ser stateless
 				 */
@@ -74,10 +76,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				 */
 				.and() //
 				.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
-		/**
-		 * Validar o token para cada requisição realizada
-		 */
-		http.authorizeRequests().anyRequest().authenticated();
 
 		http.headers().frameOptions().sameOrigin() // para o H2 Console
 				.cacheControl(); // desabilita o cache
