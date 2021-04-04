@@ -10,8 +10,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.google.common.collect.ImmutableList;
 import com.ms.filter.JwtAuthFilter;
 import com.ms.service.impl.JwtServiceImpl;
 import com.ms.service.impl.UsuariosServiceImpl;
@@ -59,10 +63,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		// super.configure(http);
 		http.authorizeRequests().antMatchers("**/clientes/*").hasAnyRole("ADMIN", "USER") //
 				.antMatchers("**/usuarios/**").hasAnyRole("ADMIN") //
-				.anyRequest().authenticated()
+				/**
+				 * Autentica a cada requisição realizada
+				 */
+				.anyRequest().authenticated() //
 				// http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll(); //
 				.and().csrf().disable() // testar com postman
 
@@ -79,6 +85,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.headers().frameOptions().sameOrigin() // para o H2 Console
 				.cacheControl(); // desabilita o cache
+		/**
+		 * Aguarda por um bean CorsConfigurationSource
+		 */
+		http.cors();
 
 		// .and()
 		// .formLogin() // Formulário default do springsecurity
@@ -91,6 +101,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 * Ignorar rota de validação
 		 */
 		web.ignoring().antMatchers(LISTA_BRANCA_DE_AUTORIZACOES);
+	}
+
+	/**
+	 * Cors para o Security
+	 *
+	 * @return
+	 */
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		final CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(ImmutableList.of("*"));
+		configuration.setAllowedMethods(ImmutableList.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		configuration.setAllowCredentials(true);
+		configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
+		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 
 }
